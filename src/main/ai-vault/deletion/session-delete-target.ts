@@ -26,7 +26,8 @@ import type { AiVaultScanOptions } from '../session-scanner-types'
 const AI_VAULT_WHOLE_DIRECTORY_DELETE_AGENTS = new Set<AiVaultDeletableAgent>([
   'rovo',
   'grok',
-  'cline'
+  'cline',
+  'junie'
 ])
 
 export type ValidateAiVaultSessionDeleteTargetArgs = {
@@ -97,6 +98,9 @@ function sessionDeleteRemovals(args: {
     if (sessionDir === matchedRoot || !isPathInsideOrEqual(matchedRoot, sessionDir)) {
       return null
     }
+    if (agent === 'junie' && !isJunieSessionDirectory(sessionDir, matchedRoot)) {
+      return null
+    }
     return [{ path: sessionDir, kind: 'directory', roots }]
   }
 
@@ -118,6 +122,18 @@ function sessionDeleteRemovals(args: {
   }
 
   return [{ path: resolvedPath, kind: 'file', roots }]
+}
+
+// The dir name is the session id Junie's registry and resume use; anything else is not a session.
+const JUNIE_SESSION_DIR_PATTERN = /^session-\d{6}-\d{6}-[a-z0-9]+$/
+
+function isJunieSessionDirectory(sessionDir: string, sessionsRoot: string): boolean {
+  const parent = dirname(sessionDir)
+  return (
+    JUNIE_SESSION_DIR_PATTERN.test(basename(sessionDir)) &&
+    isPathInsideOrEqual(sessionsRoot, parent) &&
+    isPathInsideOrEqual(parent, sessionsRoot)
+  )
 }
 
 function rejected(

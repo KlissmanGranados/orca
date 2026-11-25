@@ -33,7 +33,8 @@ export const AI_VAULT_DELETABLE_AGENTS = [
   'codebuddy',
   'rovo',
   'grok',
-  'cline'
+  'cline',
+  'junie'
 ] as const satisfies readonly AiVaultAgent[]
 
 export type AiVaultDeletableAgent = (typeof AI_VAULT_DELETABLE_AGENTS)[number]
@@ -61,7 +62,9 @@ export const AI_VAULT_SESSION_DELETE_REJECTION_CODES = [
   'no-session-directory',
   // fs-side guard: lstat disagrees with the removal's declared kind (a symlink,
   // or a file where the plan expects a directory).
-  'unexpected-target-kind'
+  'unexpected-target-kind',
+  // A live agent process still holds the session.
+  'session-in-use'
 ] as const
 
 export type AiVaultSessionDeleteRejectionCode =

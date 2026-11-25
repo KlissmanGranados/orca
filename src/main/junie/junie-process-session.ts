@@ -39,10 +39,17 @@ export async function resolveJunieProcessSession(
   return best ? { sessionId: best.sessionId, projectPath: best.projectPath } : null
 }
 
+type JunieRegistryEntry = JunieProcessSession & { startedAt: number; pid: number }
+
 async function readRegistryEntry(
   path: string,
   pid: number
 ): Promise<(JunieProcessSession & { startedAt: number }) | null> {
+  const entry = await parseRegistryEntry(path)
+  return entry && entry.pid === pid ? entry : null
+}
+
+async function parseRegistryEntry(path: string): Promise<JunieRegistryEntry | null> {
   try {
     const json: unknown = JSON.parse(await readFile(path, 'utf8'))
     if (!json || typeof json !== 'object') {
@@ -54,10 +61,16 @@ async function readRegistryEntry(
       projectPath,
       startedAt
     } = Object.fromEntries(Object.entries(json))
-    if (filePid !== pid || typeof sessionId !== 'string' || !SESSION_ID_PATTERN.test(sessionId)) {
+    if (
+      typeof filePid !== 'number' ||
+      !Number.isInteger(filePid) ||
+      typeof sessionId !== 'string' ||
+      !SESSION_ID_PATTERN.test(sessionId)
+    ) {
       return null
     }
     return {
+      pid: filePid,
       sessionId,
       projectPath: typeof projectPath === 'string' ? projectPath : '',
       startedAt: typeof startedAt === 'number' ? startedAt : 0
@@ -65,4 +78,38 @@ async function readRegistryEntry(
   } catch {
     return null
   }
+}
+
+// EPERM means the pid exists under another user, so it still counts as alive.
+export function isPidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    return error instanceof Error && 'code' in error && error.code === 'EPERM'
+  }
+}
+
+/** True when a registry file names this session and its pid is alive; stale files of killed processes are ignored. */
+export async function isJunieSessionInUse(
+  sessionId: string,
+  options: { junieHome: string; assumeAlive?: boolean }
+): Promise<boolean> {
+  const processesDir = join(options.junieHome, 'processes')
+  let names: string[]
+  try {
+    names = await readdir(processesDir)
+  } catch {
+    return false
+  }
+  for (const name of names) {
+    if (!name.endsWith('.json') || !name.includes(`-${sessionId}-`)) {
+      continue
+    }
+    const entry = await parseRegistryEntry(join(processesDir, name))
+    if (entry?.sessionId === sessionId && (options.assumeAlive || isPidAlive(entry.pid))) {
+      return true
+    }
+  }
+  return false
 }

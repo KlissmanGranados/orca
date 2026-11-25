@@ -1,4 +1,5 @@
 import { lstat, realpath } from 'node:fs/promises'
+import { basename, dirname } from 'node:path'
 import type {
   AiVaultDeleteSessionResult,
   AiVaultSessionDeleteRemoval
@@ -9,6 +10,7 @@ import {
   type ValidateAiVaultSessionDeleteTargetArgs
 } from './session-delete-target'
 import { tryDeleteWslUncPath, WslDeleteValidationError } from '../../wsl/filesystem/wsl-unc-delete'
+import { isJunieSessionInUse } from '../../junie/junie-process-session'
 import { isENOENT } from '../../filesystem/local-file-io/filesystem-path-containment'
 
 /** Desktop moves to Trash; a plain-Node host has none, so it removes permanently after the user confirmed. */
@@ -26,6 +28,9 @@ export async function deleteAiVaultSessionFile(
   const { agent, removals } = validation
 
   try {
+    if (agent === 'junie' && (await isJunieSessionDirInUse(removals[0].path))) {
+      return { outcome: 'rejected', agent, reason: 'session-in-use' }
+    }
     for (const removal of removals) {
       const rejection = await removeOne(removal, removePath)
       if (rejection) {
@@ -107,4 +112,12 @@ async function removeOne(
     throw error
   }
   return null
+}
+
+// A WSL distro's pids are not probeable from a Windows host, so a registered session there counts as live.
+async function isJunieSessionDirInUse(sessionDir: string): Promise<boolean> {
+  return isJunieSessionInUse(basename(sessionDir), {
+    junieHome: dirname(dirname(sessionDir)),
+    assumeAlive: process.platform === 'win32' && sessionDir.startsWith('\\\\')
+  })
 }
