@@ -16,6 +16,7 @@ import { cursorChatMetaPath } from '../scanners/cursor/session-scanner-cursor-ch
 import { devinSessionsDbDependencyPath } from '../scanners/devin/session-scanner-devin-db'
 import { resolveKimiSessionsDir } from '../scanners/kimi/session-scanner-kimi-paths'
 import { resolveMuseSessionsDir } from '../../../shared/agent-hook-listener/providers/muse/muse-session-log'
+import { JUNIE_AGENT_SOURCE } from '../scanners/junie/junie-session-source'
 import { isKiroSessionMetadataPath } from '../scanners/kiro/session-scanner-kiro-parser'
 
 import { OPENCLAW_AGENT_SOURCE } from '../scanners/openclaw/openclaw-session-layout'
@@ -252,6 +253,7 @@ export const AI_VAULT_AGENT_SOURCES: AiVaultAgentSourceTable = {
     extensions: ['.jsonl']
   },
   openclaw: OPENCLAW_AGENT_SOURCE,
+  junie: JUNIE_AGENT_SOURCE,
   droid: {
     rootDirs: (options, wslHomeDirs) => [
       ...sessionRootDirs(options.droidSessionsDir ?? DROID_SESSIONS_DIR, wslHomeDirs, [

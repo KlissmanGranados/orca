@@ -229,6 +229,8 @@ function buildAgentResumeInvocation(
       return `${baseCommand} --conversation ${sessionArg}`
     case 'kiro':
       return `${baseCommand} --resume-id ${sessionArg}`
+    case 'junie':
+      return `${baseCommand} --session-id ${sessionArg} --resume`
   }
 }
 

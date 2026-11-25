@@ -31,6 +31,7 @@ import {
 import { readCursorAcpSessionMeta } from '../scanners/cursor/session-scanner-cursor-acp-meta'
 import { isCursorAcpSessionStorePath } from '../../../shared/ai-vault/session-display/cursor-acp-session-path'
 import { rovoSessionCwd } from '../scanners/session-scanner-rovo-metadata'
+import { junieSessionCwd } from '../scanners/junie/session-scanner-junie-parser'
 import { grokSessionCwd } from '../scanners/grok/session-scanner-grok-parser'
 import { listedKiroMetadata } from '../scanners/kiro/session-scanner-kiro-parser'
 import { openCodeSessionCwd } from '../scanners/opencode/session-scanner-opencode-parser'
@@ -163,7 +164,11 @@ export const AI_VAULT_SCOPE_CWD_SOURCES: Record<AiVaultAgent, SessionScopeCwdSou
   devin: PARSE,
   kimi: PARSE,
   muse: PARSE,
-  jcode: PARSE
+  jcode: PARSE,
+  junie: document((content) => {
+    const summary = jsonRecord(content)
+    return summary ? junieSessionCwd(summary) : null
+  })
 }
 
 /** Answer from scope sources alone, without the global recency pass (Workspace and Project). */

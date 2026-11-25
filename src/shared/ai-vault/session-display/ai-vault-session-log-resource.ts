@@ -13,6 +13,14 @@ export function grokTranscriptPathForMetadata(filePath: string): string {
   return replaceSessionFileName(filePath, 'chat_history.jsonl')
 }
 
+export function junieTranscriptPathForSummary(filePath: string): string {
+  return replaceSessionFileName(filePath, 'transcript.md')
+}
+
+export function junieSessionMetadataPathForSummary(filePath: string): string {
+  return replaceSessionFileName(filePath, 'session_metadata.json')
+}
+
 export function rovoTranscriptPathForMetadata(filePath: string): string {
   return replaceSessionFileName(filePath, 'session_context.json')
 }
@@ -60,7 +68,11 @@ const logFileResolvers = {
   kimi: () => null,
   muse: jsonlLog,
   jcode: jsonLog,
-  kiro: (filePath) => kiroTranscriptPathForMetadata(filePath) || null
+  kiro: (filePath) => kiroTranscriptPathForMetadata(filePath) || null,
+  junie: (filePath) =>
+    getRuntimePathBasename(filePath) === 'summary.json'
+      ? junieTranscriptPathForSummary(filePath)
+      : null
 } satisfies Record<AiVaultAgent, LogFileResolver>
 
 export function aiVaultSessionLogFilePath(

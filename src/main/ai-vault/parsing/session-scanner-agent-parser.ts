@@ -21,6 +21,7 @@ import {
 import { parseKimiSessionFile } from '../scanners/kimi/session-scanner-kimi-parser'
 import { parseMuseSessionFile } from '../scanners/muse/session-scanner-muse-parser'
 import { splitOpenCodeSqliteCandidate } from '../../../shared/agent-session/lifecycle/provider-handles/opencode-sqlite-session-path'
+import { parseJunieSessionFile } from '../scanners/junie/session-scanner-junie-parser'
 import { parseJcodeSessionFile } from '../scanners/jcode/session-scanner-jcode-parser'
 import { parseKiroSessionFile } from '../scanners/kiro/session-scanner-kiro-parser'
 import {
@@ -168,6 +169,8 @@ export async function parseAgentSessionFile(
       return parseMuseSessionFile(candidate.file, platform, messages, signal)
     case 'jcode':
       return parseJcodeSessionFile(candidate.file, platform, messages, signal)
+    case 'junie':
+      return parseJunieSessionFile(candidate.file, platform, messages, signal)
     case 'kiro':
       return parseKiroSessionFile(candidate.file, platform, messages, onSkippedRecords, signal)
   }

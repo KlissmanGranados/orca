@@ -84,6 +84,7 @@ function resumableStateFactoryFor(
     case 'grok':
     case 'hermes':
     case 'jcode':
+    case 'junie':
     case 'cline':
     case 'kimi':
     case 'kiro':
