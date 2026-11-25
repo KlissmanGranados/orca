@@ -153,6 +153,12 @@ export function secondaryAgentCatalogEntries(): AgentCatalogEntry[] {
       label: translate('auto.lib.agent.catalog.jcode_label', 'Jcode'),
       cmd: 'jcode',
       homepageUrl: 'https://github.com/1jehuang/jcode'
+    },
+    {
+      id: 'junie',
+      label: translate('auto.lib.agent.catalog.junie_label', 'Junie'),
+      cmd: 'junie',
+      homepageUrl: 'https://www.jetbrains.com/junie/'
     }
   ]
 }
