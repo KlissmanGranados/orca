@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "orca-component-fixtures": {
+      "command": "node",
+      "args": ["config/scripts/component-fixtures/fixtures-mcp-server.mjs"]
+    }
+  }
+}
