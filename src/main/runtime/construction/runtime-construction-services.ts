@@ -235,6 +235,9 @@ export abstract class RuntimeConstructionServices extends RuntimeAgentStatusRead
   ): void
   protected abstract wslDistroByPtyId: Map<string, string>
   protected abstract runAfterPendingTerminalSideEffectFacts(ptyId: string, run: () => void): void
+  protected abstract resolveTerminalAgentStatusTargets(
+    ptyId: string
+  ): { paneKey: string; worktreeId?: string }[]
   protected abstract emitTerminalAgentStatusEvents(
     ptyId: string,
     chunk: Pick<ProcessedAgentStatusChunk, 'payloads'> & Partial<ProcessedAgentStatusChunk>,

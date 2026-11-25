@@ -1,3 +1,5 @@
+import { JuniePaneSessionBinding } from '../terminal/launch/junie-pane-session-binding'
+import { agentHookServer } from '../../agent-hooks/server/agent-hook-server'
 import { backgroundWaitReportDeps } from '../orchestration/workers/turn-stops/worker-background-wait-rows'
 import { CrewChanges } from '../orchestration/crew/crew-changes'
 import { OrchestrationStructuredMailboxPointerDelivery } from '../orchestration/mailbox/structured-pointer/structured-mailbox-pointer-delivery'
@@ -152,6 +154,17 @@ export abstract class OrcaRuntimeWithStopRequestedPtyIds extends OrcaRuntimeWith
   })
 
   protected abstract readonly ptyForegroundAgent: RuntimePtyForegroundAgent
+
+  protected readonly junieSessionBinding = new JuniePaneSessionBinding({
+    getPty: (ptyId) => this.ptysById.get(ptyId) ?? null,
+    isWsl: (ptyId) => {
+      const pty = this.ptysById.get(ptyId)
+      return !!pty?.wslDistro || pty?.isWsl === true || this.wslDistroByPtyId.has(ptyId)
+    },
+    getController: () => this.ptyController,
+    resolveTargets: (ptyId) => this.resolveTerminalAgentStatusTargets(ptyId),
+    record: (event) => agentHookServer.recordLaunchResumeIdentity(event)
+  })
 
   protected readonly openCodeRunLifetime = new OpenCodeRunLifetimeStatus({
     isStopping: (ptyId) =>

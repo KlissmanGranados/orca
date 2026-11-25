@@ -90,6 +90,8 @@ export function getAgentResumeArgv(
       return providerSession.key === 'session_id'
         ? ['hermes', ...hermesStateDbProfileArgs(providerSession.transcriptPath), '--resume', id]
         : null
+    case 'junie':
+      return providerSession.key === 'session_id' ? ['junie', '--session-id', id, '--resume'] : null
   }
 }
 

@@ -132,6 +132,7 @@ export abstract class OrcaRuntimeWithOnPtyData extends OrcaRuntimeWithPreparePty
     let ptyNormalized: ReturnType<typeof normalizeTerminalChunk> | null = null
     if (pty) {
       this.terminalIdentity.setPtyConnected(pty, true)
+      this.junieSessionBinding.observe(ptyId)
       pty.disconnectedAt = null
       pty.lastOutputAt = at
       const normalized = normalizeTerminalChunk(data, pty.tailPendingAnsi)
